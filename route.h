@@ -43,7 +43,7 @@ class Route {
           result += " → ";
         }
       }
-      std::cout << result << " ] Cost: " << cost_ << "\n";
+      std::cout << result << " ]\tCost: " << cost_ << "\n";
     }
 
 };
