@@ -1,6 +1,6 @@
 all:
-	g++ -w -std=c++17 -o main.exe ./main.cc
+	g++ -w -std=c++17 -o ./bin/main.exe ./src/main.cc
 clean:
-	rm *.exe *.out *.o
+	rm ./bin/*.exe ./bin/*.out ./bin/*.o
 run:
-	./main.exe test/* | column -t
+	./main.exe
