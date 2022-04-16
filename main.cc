@@ -1,3 +1,14 @@
+/**
+ * @file main.cc
+ * @author Airam Rafael Luque León (alu0101335148@ull.edu.es)
+ * @brief Main file for the project.
+ * @version 1.0.5
+ * @date 2022-04-15
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include "route.h"
 
 #include <iostream>
@@ -11,11 +22,16 @@
 typedef std::vector<std::vector<int>> Matrix;
 typedef std::pair<int, int> Pair;
 
-
+/**
+ * @brief This function reads the first two lines of a inpu file and returns a
+ * pair with the number of clients and the number of routes.
+ * 
+ * @param file input file stream
+ * @return Pair {number of client, number of routes}
+ */
 Pair readInitialValues(std::ifstream& file) {
   std::string line = "";
 
-  // Read the first two lines to get the number of clients and vehicles
   int posFound = 0;
   std::string splitted = "";
 
@@ -33,6 +49,15 @@ Pair readInitialValues(std::ifstream& file) {
   return {nClients, nVehicles};
 }
 
+
+/**
+ * @brief This function reads the matrix of distances from the input file and
+ * returns it.
+ * 
+ * @param file input file stream 
+ * @param size size of the matrix
+ * @return Matrix distance matrix
+ */
 Matrix readDistanceMatrix(std::ifstream& file, int size) {
   Matrix matrix = {};
   matrix.resize(size);
@@ -59,6 +84,14 @@ Matrix readDistanceMatrix(std::ifstream& file, int size) {
   return matrix;
 }
 
+
+/**
+ * @brief Functions that check if all the nodes are visited or not.
+ * @details true visited, false not visited
+ * @param visited vector of visited nodes
+ * @return true All visited
+ * @return false At least one not visited
+ */
 bool allClientsVisited(const std::vector<bool>& visited) {
   for (size_t i = 0; i < visited.size(); i++) {
     if (!visited[i]) return false;
@@ -66,6 +99,19 @@ bool allClientsVisited(const std::vector<bool>& visited) {
   return true;
 }
 
+
+/**
+ * @brief This funciton, given a vector of visited nodes, the matrix of 
+ * distance and the actual node, returns the index of the next node to visit
+ * and the cost to go to that node.
+ * @details This funtion search the node with the lowest cost to go to from the
+ * actual node.
+ *
+ * @param distanceMatrix distance matrix
+ * @param visited list of visited nodes
+ * @param current actual node
+ * @return Pair next node and cost to go to that node
+ */
 Pair findMinNotVisited(const Matrix& distanceMatrix, 
                        const std::vector<bool>& visited,
                        const int& current) {
@@ -81,6 +127,19 @@ Pair findMinNotVisited(const Matrix& distanceMatrix,
   return {minIndex, min};
 }
 
+
+/**
+ * @brief Implementation of a greedy algorithm to find the best route.
+ * @details This function uses a greedy algorithm to find the best route. It
+ * starts from the first node and search the node with the lowest cost to go
+ * to from the actual node. Then, it adds the node to the route and repeat this
+ * process for each vehicle (each route) until we finish to visit all nodes.
+ * 
+ * @param distanceMatrix distance matrix
+ * @param nVehicles number of vehicles (number of routes)
+ * @param initialNode initial position to start the route
+ * @return std::vector<Route> routes of each vehicle
+ */
 std::vector<Route> greedySolver(const Matrix& distanceMatrix,
                                 const int nVehicles,
                                 const int initialNode = 0) {
@@ -100,8 +159,8 @@ std::vector<Route> greedySolver(const Matrix& distanceMatrix,
       }
       actualNode = routes[i].getLastClient();
       Pair nextClient = findMinNotVisited(distanceMatrix, 
-                                                         visitedClients,
-                                                         actualNode);
+                                          visitedClients,
+                                          actualNode);
       visitedClients[nextClient.first] = true;
       routes[i].addClient(nextClient.first);
       routes[i].getCost() += nextClient.second;
@@ -115,6 +174,17 @@ std::vector<Route> greedySolver(const Matrix& distanceMatrix,
   return routes;
 }
 
+
+/**
+ * @brief This function calculates the probabilities of each avaible node
+ * @details This function calculates accumulative probabilities of each avaible
+ * node.
+ * 
+ * @param distanceMatrix matrix distance
+ * @param avaibleClients list of all the avaible clients
+ * @param actualNode actual node
+ * @return std::vector<float> vector of probabilities
+ */
 std::vector<float> calculateProbabilities(const Matrix& distanceMatrix, 
                                           std::vector<int> avaibleClients, 
                                           int actualNode) {
@@ -155,6 +225,17 @@ std::vector<float> calculateProbabilities(const Matrix& distanceMatrix,
   return probabilities;
 }
 
+
+/**
+ * @brief This function selects a node based on the probabilities calculated
+ * @details the probability to go to a node is calculated based on the cost to
+ * go to that node.
+ * 
+ * @param distanceMatrix matrix of distances 
+ * @param avaibleClients list of avaible clients
+ * @param actualNode actual node
+ * @return Pair next node and cost to go to that node
+ */
 Pair findRandomMinNotVisited(const Matrix& distanceMatrix, 
                              std::vector<int> avaibleClients, 
                              int actualNode) {
@@ -172,6 +253,17 @@ Pair findRandomMinNotVisited(const Matrix& distanceMatrix,
   return {newClient, distanceMatrix[actualNode][newClient]};
 }
 
+
+/**
+ * @brief This function implements the constructive phase of GRASP algorithm
+ * 
+ * @param seed seed for random number generator
+ * @param distanceMatrix matrix of distances
+ * @param nVehicles number of vehicles (number of routes)
+ * @param nClients number of clients
+ * @param initialNode initial position to start the route
+ * @return std::vector<Route> vector of routes
+ */
 std::vector<Route> GRC(int seed, const Matrix& distanceMatrix, 
                        const int nVehicles, const int nClients,
                        const int initialNode = 0) {

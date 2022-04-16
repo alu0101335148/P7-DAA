@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-
 class Route {
   private:
     std::vector<int> route_ = {};
