@@ -267,6 +267,7 @@ Pair findRandomMinNotVisited(const Matrix& distanceMatrix,
 std::vector<Route> GRC(int seed, const Matrix& distanceMatrix, 
                        const int nVehicles, const int nClients,
                        const int initialNode = 0) {
+  srand(seed);
   std::vector<int> avaibleClients = {};
   for (size_t i = 0; i < distanceMatrix.size(); i++) {
     avaibleClients.push_back(i);
@@ -335,18 +336,25 @@ int main(int argc, char* argv[]) {
     Matrix distanceMatrix = readDistanceMatrix(file, nClients);
     file.close();
 
+    int totalCost = 0;
     std::vector<Route> result = greedySolver(distanceMatrix, nVehicles);
     std::cout << "Normal Greedy:\n";
     for (size_t i = 0; i < result.size(); i++) {
       std::cout << "Route " << i << ": ";
       result[i].printRoute();
+      totalCost += result[i].getCost();
     }
+    std::cout << "Total cost: " << totalCost << "\n";
+
+    totalCost = 0;    
     std::vector<Route> constructiveResult = GRC(0, distanceMatrix, nVehicles, nClients);
     std::cout << "\nConstructive:\n";
     for (size_t i = 0; i < constructiveResult.size(); i++) {
       std::cout << "Route " << i << ": ";
       constructiveResult[i].printRoute();
+      totalCost += constructiveResult[i].getCost();
     }
+    std::cout << "\nTotal cost: " << totalCost << "\n";
 
   } else {
     std::cout << "Error opening file\n";
