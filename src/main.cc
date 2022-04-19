@@ -18,6 +18,7 @@
 #include <climits>
 #include <sstream>
 #include <algorithm>
+#include <ctime>
 
 typedef std::vector<std::vector<int>> Matrix;
 typedef std::pair<int, int> Pair;
@@ -320,6 +321,7 @@ std::vector<Route> GRC(int seed, const Matrix& distanceMatrix,
  * @return 0 if the program ends successfully
  */
 int main(int argc, char* argv[]) {
+  srand(std::time(NULL));
   std::string filename = "";
   if (argc == 2) {
     filename = argv[1];
@@ -347,7 +349,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Total cost: " << totalCost << "\n";
 
     totalCost = 0;    
-    std::vector<Route> constructiveResult = GRC(0, distanceMatrix, nVehicles, nClients);
+    std::vector<Route> constructiveResult = GRC(rand(), distanceMatrix, nVehicles, nClients);
     std::cout << "\nConstructive:\n";
     for (size_t i = 0; i < constructiveResult.size(); i++) {
       std::cout << "Route " << i << ": ";
