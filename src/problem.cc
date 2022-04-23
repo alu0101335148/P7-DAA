@@ -1,3 +1,11 @@
+/**
+ * @file problem.cc
+ * @author Airam Rafael Luque León (alu0101335148@ull.edu.es)
+ * @brief File that contains the definition of the problem class methods
+ * @version 0.1
+ * @date 2022-04-23
+ */
+
 #include "problem.h"
 
 Problem::Problem(int num_vehicles, int num_clients, Matrix distance_matrix) {

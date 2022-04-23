@@ -19,63 +19,49 @@ class Solution {
     std::vector<Route> routes_ = {};
     int cost_ = 0;
   public:
-    Solution(int num_vehicles);
-    ~Solution();
+  
+    /** @brief Construct a new Solution:: Solution object */
+    Solution(int num_vehicles) {
+      routes_.resize(num_vehicles);
+    }
+    /** @brief Destroy the Solution:: Solution object */
+    ~Solution() {};
 
-    void addRoute(Route& route);
-    int calculateCost();
+    /**
+     * @brief Method to add a route to the solution
+     * @param route 
+     */
+    void addRoute(Route& route) {
+      routes_.push_back(route);
+    };
 
-    std::vector<Route>& getRoutes();
-    void printSolution();
+    /** @brief Function that recalculate the cost of the actual solution */
+    int calculateCost() {
+      cost_ = 0; 
+      for (size_t i = 0; i < routes_.size(); i++) {
+        cost_ += routes_[i].getCost();
+      }
+      return cost_;
+    };
+
+    /**
+     * @brief Getter of the vector of routes
+     * @return std::vector<Route> 
+     */
+    std::vector<Route>& getRoutes() {
+      return routes_;
+    };
+
+    /** @brief Function that prints the solution */
+    void printSolution() {
+      int total_cost = 0;
+      for (size_t i = 0; i < routes_.size(); i++) {
+        std::cout << "Route " << i << ": ";
+        routes_[i].printRoute();
+        total_cost += routes_[i].getCost();
+      }
+      std::cout << "Total cost: " << total_cost << "\n";
+    };
 };
-
-/**
- * @brief Construct a new Solution:: Solution object
- */
-Solution::Solution(int num_vehicles) {
-  routes_.resize(num_vehicles);
-}
-
-/**
- * @brief Destroy the Solution:: Solution object
- */
-Solution::~Solution() {}
-
-/**
- * @brief Method to add a route to the solution
- * @param route 
- */
-void Solution::addRoute(Route& route) {
-  routes_.push_back(route);
-}
-
-/**
- * @brief Function that recalculate the cost of the actual solution
- */
-int Solution::calculateCost() {
-  cost_ = 0; 
-  for (size_t i = 0; i < routes_.size(); i++) {
-    cost_ += routes_[i].getCost();
-  }
-  return cost_;
-}
-
-/**
- * @brief Getter of the vector of routes
- * @return std::vector<Route> 
- */
-std::vector<Route>& Solution::getRoutes() {
-  return routes_;
-}
-
-void Solution::printSolution() {
-  int total_cost = 0;
-  for (size_t i = 0; i < routes_.size(); i++) {
-    std::cout << "Route " << i << ": ";
-    routes_[i].printRoute();
-    total_cost += routes_[i].getCost();
-  }
-  std::cout << "Total cost: " << total_cost << "\n";
-}
 
 #endif

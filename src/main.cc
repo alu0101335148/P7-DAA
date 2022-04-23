@@ -1,5 +1,3 @@
-// NOTE: En el Grasp debemos de ponerlo en un bucle para tomar la mejor solución
-
 /**
  * @file main.cc
  * @author Airam Rafael Luque León (alu0101335148@ull.edu.es)
@@ -12,9 +10,6 @@
 #include "problem.h"
 
 #include <ctime>
-
-typedef std::vector<std::vector<int>> Matrix;
-typedef std::pair<int, int> Pair;
 
 /**
  * @brief main function of the problem: this function receives a filename and

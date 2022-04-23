@@ -1,3 +1,11 @@
+/**
+ * @file algorithm.cc
+ * @author Airam Rafael Luque León (alu0101335148@ull.edu.es)
+ * @brief File that contains the definition of the Algorithm class methods
+ * @version 0.1
+ * @date 2022-04-23
+ */
+
 #include "algorithm.h"
 
 /**
@@ -8,16 +16,16 @@
  * process for each vehicle (each route) until we finish to visit all nodes.
  * 
  * @param initialNode initial position to start the route
- * @return std::vector<Route> routes of each vehicle
+ * @return Solution object of the result class
  */
 Solution Algorithm::greedySolver(const int initialNode) {
   std::vector<bool> visitedClients = {};
   visitedClients.resize(problem_->getDistanceMatrix().size(), false);
-  Solution solution(problem_->getNumVehicles());
+  Solution result(problem_->getNumVehicles());
   visitedClients[initialNode] = true;
   int actualNode = initialNode;
-  for (size_t i = 0; i < solution.getRoutes().size(); i++) {
-    solution.getRoutes()[i].addClient(initialNode);
+  for (size_t i = 0; i < result.getRoutes().size(); i++) {
+    result.getRoutes()[i].addClient(initialNode);
   }
 
   while(!allClientsVisited(visitedClients)) {
@@ -25,24 +33,77 @@ Solution Algorithm::greedySolver(const int initialNode) {
       if(allClientsVisited(visitedClients)) {
         break;
       }
-      actualNode = solution.getRoutes()[i].getLastClient();
+      actualNode = result.getRoutes()[i].getLastClient();
       Pair nextClient = findMinNotVisited(visitedClients,
                                           actualNode);
       visitedClients[nextClient.first] = true;
-      solution.getRoutes()[i].addClient(nextClient.first);
-      solution.getRoutes()[i].getCost() += nextClient.second;
+      result.getRoutes()[i].addClient(nextClient.first);
+      result.getRoutes()[i].getCost() += nextClient.second;
     }
   }
 
-  for (int i = 0; i < solution.getRoutes().size(); i++) {
+  for (int i = 0; i < result.getRoutes().size(); i++) {
     Matrix distance_matrix = problem_->getDistanceMatrix();
-    solution.getRoutes()[i].getCost() += distance_matrix[solution.getRoutes()[i].getLastClient()][initialNode];
-    solution.getRoutes()[i].addClient(initialNode);
+    result.getRoutes()[i].getCost() += distance_matrix[result.getRoutes()[i].getLastClient()][initialNode];
+    result.getRoutes()[i].addClient(initialNode);
   }
-  return solution;
+  return result;
 }
 
-//___________________________________________________________________________//
+
+/**
+ * @brief This function implements the constructive phase of GRASP algorithm
+ * 
+ * @param seed seed for random number generator
+ * @param initialNode initial position to start the route
+ * @return Solution Object of the result class
+ */
+Solution Algorithm::GRC(int seed, const int initialNode) {
+  Matrix distance_matrix = problem_->getDistanceMatrix();
+  srand(seed);
+  std::vector<int> avaibleClients = {};
+  for (size_t i = 0; i < distance_matrix.size(); i++) {
+    avaibleClients.push_back(i);
+  }
+
+  Solution result(problem_->getNumVehicles());
+  for (size_t i = 0; i < result.getRoutes().size(); i++) {
+    result.getRoutes()[i].addClient(initialNode);
+  }
+
+  int actualNode = initialNode;
+  avaibleClients.erase(avaibleClients.begin() + actualNode);
+
+  while(!avaibleClients.empty()) {    
+    for (int i = 0; i < problem_->getNumVehicles(); i++) {
+      if(avaibleClients.empty()) {
+        break;
+      }
+      actualNode = result.getRoutes()[i].getLastClient();
+      Pair nextClient = findRandomMinNotVisited(avaibleClients,
+                                                actualNode);
+      if (nextClient.first == -1) {
+        break;
+      }
+      for (size_t i = 0; i < avaibleClients.size(); i++) {
+        if (avaibleClients[i] == nextClient.first) {
+          avaibleClients.erase(avaibleClients.begin() + i);
+          break;
+        }
+      }
+      result.getRoutes()[i].addClient(nextClient.first);
+      result.getRoutes()[i].getCost() += nextClient.second;
+    }
+  }
+
+  for (int i = 0; i < result.getRoutes().size(); i++) {
+    result.getRoutes()[i].getCost() += distance_matrix[result.getRoutes()[i].getLastClient()][initialNode];
+    result.getRoutes()[i].addClient(initialNode);
+  }
+  return result;
+}
+
+
 
 /**
  * @brief Functions that check if all the nodes are visited or not.
@@ -87,133 +148,38 @@ Pair Algorithm::findMinNotVisited(const std::vector<bool>& visited,
 
 
 /**
- * @brief This function calculates the probabilities of each avaible node
- * @details This function calculates accumulative probabilities of each avaible
- * node.
- * 
- * @param avaibleClients list of all the avaible clients
- * @param actualNode actual node
- * @return std::vector<float> vector of probabilities
- */
-std::vector<float> 
-Algorithm::calculateProbabilities(std::vector<int> avaibleClients, 
-                                  int actualNode) {
-  int sumCost = 0;
-  Matrix distance_matrix = problem_->getDistanceMatrix();
-
-  // Sum all the cost
-  for (int i = 0; i < avaibleClients.size(); i++) {
-    sumCost += distance_matrix[actualNode][avaibleClients[i]];
-  }
-
-  // Generate a random number
-  std::vector<float> probabilities = {};
-
-  if (avaibleClients.size() == 1) {
-    probabilities.push_back(1);
-    return probabilities;
-  }
-  for (int i = 0; i < avaibleClients.size(); i++) {
-    int cost = distance_matrix[actualNode][avaibleClients[i]];
-    float probability = (1.0 - (float) cost / (float) sumCost);
-    probabilities.push_back(probability);
-  }
-
-  // Normalize the probabilites
-  float sumProbabilities = 0;
-  for (int i = 0; i < probabilities.size(); i++) {
-    sumProbabilities += probabilities[i];
-  }
-  for (int i = 0; i < probabilities.size(); i++) {
-    probabilities[i] /= sumProbabilities;
-  }
-
-  // Calculate the accumulative probabilities
-  for (int i = 1; i < avaibleClients.size(); i++) {
-    probabilities[i] += probabilities[i - 1];
-  }
-
-  return probabilities;
-}
-
-
-/**
- * @brief This function selects a node based on the probabilities calculated
- * @details the probability to go to a node is calculated based on the cost to
- * go to that node.
+ * @brief This function selects a random node to visit and returns the index
+ * @details First, it select the best n candidates to visit. Then, selects one
+ * randomly
  * 
  * @param avaibleClients list of avaible clients
  * @param actualNode actual node
  * @return Pair next node and cost to go to that node
  */
-Pair Algorithm::findRandomMinNotVisited(std::vector<int> avaibleClients,
-                                        int actualNode) {
-  std::vector<float> probabilities = calculateProbabilities(avaibleClients, 
-                                                            actualNode);
-  int newClient = -1;
+Pair Algorithm::findRandomMinNotVisited(std::vector<int> avaible_clients,
+                                        int actual_node, int candidates) {
   Matrix distance_matrix = problem_->getDistanceMatrix();
-  float random = ((double) rand() / (INT_MAX));
-  for (int i = 0; i < avaibleClients.size(); i++) {
-    if (random <= probabilities[i]) {
-      newClient = avaibleClients[i];
-      break;
-    }
-  }
-  return {newClient, distance_matrix[actualNode][newClient]};
-}
 
-
-/**
- * @brief This function implements the constructive phase of GRASP algorithm
- * 
- * @param seed seed for random number generator
- * @param distanceMatrix matrix of distances
- * @param nVehicles number of vehicles (number of routes)
- * @param nClients number of clients
- * @param initialNode initial position to start the route
- * @return std::vector<Route> vector of routes
- */
-Solution Algorithm::GRC(int seed, const int initialNode) {
-  Matrix distance_matrix = problem_->getDistanceMatrix();
-  srand(seed);
-  std::vector<int> avaibleClients = {};
-  for (size_t i = 0; i < distance_matrix.size(); i++) {
-    avaibleClients.push_back(i);
-  }
-
-  Solution solution(problem_->getNumVehicles());
-  for (size_t i = 0; i < solution.getRoutes().size(); i++) {
-    solution.getRoutes()[i].addClient(initialNode);
-  }
-
-  int actualNode = initialNode;
-  avaibleClients.erase(avaibleClients.begin() + actualNode);
-
-  while(!avaibleClients.empty()) {    
-    for (int i = 0; i < problem_->getNumVehicles(); i++) {
-      if(avaibleClients.empty()) {
-        break;
-      }
-      actualNode = solution.getRoutes()[i].getLastClient();
-      Pair nextClient = findRandomMinNotVisited(avaibleClients,
-                                                actualNode);
-      if (nextClient.first == -1) {
-        break;
-      }
-      for (size_t i = 0; i < avaibleClients.size(); i++) {
-        if (avaibleClients[i] == nextClient.first) {
-          avaibleClients.erase(avaibleClients.begin() + i);
-          break;
+  // Select the best n candidates of the avaible clients
+  std::vector<int> selected_nodes;
+  if (avaible_clients.size() < candidates) {
+    selected_nodes = avaible_clients;
+  } else {
+    for (size_t i = 0; i < candidates; i++) {
+      int node_index = 0;
+      int minimum_cost = INT_MAX;
+      for (size_t j = 0; j < avaible_clients.size(); j++) {
+        int cost = distance_matrix[actual_node][avaible_clients[j]];
+        if (cost < minimum_cost) {
+          minimum_cost = cost;
+          node_index = j;
         }
       }
-      solution.getRoutes()[i].addClient(nextClient.first);
-      solution.getRoutes()[i].getCost() += nextClient.second;
+      selected_nodes.emplace_back(avaible_clients[node_index]);
+      avaible_clients.erase(avaible_clients.begin() + node_index);
     }
-  }
-
-  for (int i = 0; i < solution.getRoutes().size(); i++) {
-    solution.getRoutes()[i].getCost() += distance_matrix[solution.getRoutes()[i].getLastClient()][initialNode];
-    solution.getRoutes()[i].addClient(initialNode);
-  }
-  return solution;
+  }    
+  // Select a random number of the best candidates
+  int newClient = selected_nodes[rand() % selected_nodes.size()];
+  return {newClient, distance_matrix[actual_node][newClient]};
 }
