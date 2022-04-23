@@ -1,12 +1,11 @@
+// NOTE: En el Grasp debemos de ponerlo en un bucle para tomar la mejor solución
+
 /**
  * @file main.cc
  * @author Airam Rafael Luque León (alu0101335148@ull.edu.es)
  * @brief Main file for the project.
  * @version 1.0.5
  * @date 2022-04-15
- * 
- * @copyright Copyright (c) 2022
- * 
  */
 
 #include "route.h"

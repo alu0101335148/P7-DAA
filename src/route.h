@@ -4,9 +4,6 @@
  * @brief This file contains the definition of the class Route.
  * @version 1.2
  * @date 2022-04-14
- * 
- * @copyright Copyright (c) 2022
- * 
  */
 
 #ifndef ___ROUTE___
