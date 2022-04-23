@@ -6,8 +6,8 @@
  * @date 2022-04-19
  */
 
-#ifndef ___SOLUTION___
-#define ___SOLUTION___
+#ifndef ___SOLUTION_H___
+#define ___SOLUTION_H___
 
 #include "route.h"
 
@@ -19,19 +19,22 @@ class Solution {
     std::vector<Route> routes_ = {};
     int cost_ = 0;
   public:
-    Solution();
+    Solution(int num_vehicles);
     ~Solution();
 
     void addRoute(Route& route);
     int calculateCost();
 
-    std::vector<Route> getRoutes();
+    std::vector<Route>& getRoutes();
+    void printSolution();
 };
 
 /**
  * @brief Construct a new Solution:: Solution object
  */
-Solution::Solution() {}
+Solution::Solution(int num_vehicles) {
+  routes_.resize(num_vehicles);
+}
 
 /**
  * @brief Destroy the Solution:: Solution object
@@ -61,8 +64,18 @@ int Solution::calculateCost() {
  * @brief Getter of the vector of routes
  * @return std::vector<Route> 
  */
-std::vector<Route> Solution::getRoutes() {
+std::vector<Route>& Solution::getRoutes() {
   return routes_;
+}
+
+void Solution::printSolution() {
+  int total_cost = 0;
+  for (size_t i = 0; i < routes_.size(); i++) {
+    std::cout << "Route " << i << ": ";
+    routes_[i].printRoute();
+    total_cost += routes_[i].getCost();
+  }
+  std::cout << "Total cost: " << total_cost << "\n";
 }
 
 #endif

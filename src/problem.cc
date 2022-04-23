@@ -37,7 +37,7 @@ Problem::Problem(std::ifstream& file) {
   }
   int i = 0;
   int j = 0;
-  std::string line = "";
+  line = "";
   while (!file.eof()) {
     getline(file, line);
     if (line.empty()) {
