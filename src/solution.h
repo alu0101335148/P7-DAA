@@ -10,6 +10,7 @@
 #define ___SOLUTION_H___
 
 #include "route.h"
+#include <climits>
 
 /**
  * @brief Class that stores the information about the solution
@@ -17,13 +18,20 @@
 class Solution {
   private:
     std::vector<Route> routes_ = {};
-    int cost_ = 0;
+    int cost_ = INT_MAX;
   public:
   
     /** @brief Construct a new Solution:: Solution object */
     Solution(int num_vehicles) {
       routes_.resize(num_vehicles);
     }
+    Solution(std::vector<Route> routes) {
+      routes_ = routes;
+      for (int i = 0; i < routes_.size(); i++) {
+        cost_ += routes_[i].getCost();
+      }
+    }
+
     /** @brief Destroy the Solution:: Solution object */
     ~Solution() {};
 
@@ -44,6 +52,11 @@ class Solution {
       return cost_;
     };
 
+    /** @brief Function that returns the cost of the actual solution */
+    int getCost() {
+      return cost_;
+    };
+
     /**
      * @brief Getter of the vector of routes
      * @return std::vector<Route> 
@@ -61,6 +74,11 @@ class Solution {
         total_cost += routes_[i].getCost();
       }
       std::cout << "Total cost: " << total_cost << "\n";
+    };
+
+    void operator=(Solution& solution) {
+      this->routes_ = solution.getRoutes();
+      this->cost_ = solution.calculateCost();
     };
 };
 

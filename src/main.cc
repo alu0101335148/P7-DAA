@@ -7,7 +7,6 @@
  */
 
 #include "algorithm.h"
-#include "problem.h"
 
 #include <ctime>
 
@@ -39,6 +38,8 @@ int main(int argc, char* argv[]) {
     std::cout << "\nConstructive:\n";
     algorithm.GRC(rand()).printSolution();
 
+    std::cout << "\nGRASP:\n";
+    algorithm.GRASPSolver(10,0,0).printSolution();
   } else {
     std::cout << "Error opening file\n";
     return -1;

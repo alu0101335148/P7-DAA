@@ -9,11 +9,7 @@
 #ifndef ___ALGORITHM_H___
 #define ___ALGORITHM_H___
 
-// Esta clase debe de almacenar la implementación de los algoritmos (greedy y GRASP)
-#include <climits>
-
-#include "problem.h"
-#include "solution.h"
+#include "local_search.h"
 
 typedef std::pair<int, int> Pair;
 
@@ -29,13 +25,16 @@ class Algorithm {
      */
     Algorithm(Problem* problem) {
       problem_ = problem;
-    }
+      local_search_.setProblem(problem_);
+    };
+
     /** @brief Destroy the Algorithm object */
     ~Algorithm() {};
 
     Solution greedySolver(const int initialNode = 0);
-    Solution GRASPSolver(const int initialNode = 0) {};
+    Solution GRASPSolver(const int max_iterations, const int seed, const int initialNode = 0);
     Solution GRC(int seed, const int initialNode = 0);
+
   private:
     Problem* problem_;
 
@@ -45,6 +44,9 @@ class Algorithm {
     Pair findRandomMinNotVisited(std::vector<int> avaibleClients,
                                  int actualNode, int candidates = 2);
 
+    // Local Search:
+    LocalSearch local_search_;
+    Solution localSearch(Solution initial_solution);
 };
 
 #endif

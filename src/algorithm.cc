@@ -52,6 +52,40 @@ Solution Algorithm::greedySolver(const int initialNode) {
 
 
 /**
+ * @brief Function that implements the GRASP algorithm
+ * @param max_iterations number of iterations to perform the algorithm
+ * @param seed seed to initialize the random number generator
+ * @param initial_node initial node to start the route
+ * @return Solution object of the Solution class
+ */
+Solution Algorithm::GRASPSolver(const int max_iterations, const int seed,
+                                const int initial_node) {
+  srand(seed);
+  Solution best_solution(problem_->getNumVehicles());
+  int iterations = 0;
+  while (iterations < max_iterations) {
+    Solution initial_solution = GRC(seed, initial_node);
+    Solution sharp_solution = localSearch(initial_solution);
+    if (sharp_solution.calculateCost() < best_solution.getCost()) {
+      best_solution = sharp_solution;
+    }
+    iterations++;
+  }
+  return best_solution;
+}
+
+
+/**
+ * @brief Local search function to improve the solution
+ * @param initial_solution initial solution to improve
+ * @return Solution object of the Solution class
+ */
+Solution Algorithm::localSearch(Solution initial_solution) {
+  return local_search_.run(initial_solution);
+}
+
+
+/**
  * @brief This function implements the constructive phase of GRASP algorithm
  * 
  * @param seed seed for random number generator
