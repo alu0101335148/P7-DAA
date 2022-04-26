@@ -30,9 +30,9 @@ void LocalSearch::setProblem(Problem* problem) {
  * @return Solution 
  */
 Solution LocalSearch::run(Solution initial_solution) {
-  // return swapIntraRoute(initial_solution);
+  return swapIntraRoute(initial_solution);
   // return swapInterRoute(initial_solution);
-  // return reinsertionIntraRoute(initial_solution);
+  return reinsertionIntraRoute(initial_solution);
   return reinsertionInterRoute(initial_solution);
 }
 
