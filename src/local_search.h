@@ -37,13 +37,13 @@ class LocalSearch {
     // Swap Interroute
     Solution swapInterRoute(Solution initial_solution);
     void interRouteSwapProcedure(Route& first_route, Route& second_route);
-    std::pair<int,int> swapCost(int first_index, int second_index, 
-                                Route first_route, Route second_route);
+    Pair swapCost(int first_index, int second_index, 
+                  Route first_route, Route second_route);
 
     // Reinsertion Interroute
     Solution reinsertionInterRoute(Solution initial_solution);
     void interRouteReinsertionProcedure(Route& first_route, Route& second_route);
-    std::pair<int,int> reinsertionCost(int first_index, int second_index, 
+    Pair reinsertionCost(int first_index, int second_index, 
                                        Route first_route, Route second_route);
 
     // 2-Opt

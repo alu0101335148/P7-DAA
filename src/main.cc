@@ -9,8 +9,18 @@
 #include "algorithm.h"
 
 #include <ctime>
+#include <chrono>
 
+using namespace std::chrono;
 
+/**
+ * @brief Function that check if the cost of a given solution is correct or not
+ * 
+ * @param solution_to_check solution to check
+ * @param problem problem to solve (use to get the distance matrix)
+ * @return true if the cost is correct
+ * @return false  if the cost is incorrect
+ */
 bool checkSolution (Solution solution_to_check, Problem problem) {
   Matrix distance_matrix = problem.getDistanceMatrix();
   std::vector<Route> routes = solution_to_check.getRoutes();
@@ -48,14 +58,14 @@ int main(int argc, char* argv[]) {
     Algorithm algorithm(&problem);
 
     // std::cout << "Normal Greedy:\n";
-    // Solution greedy = algorithm.greedySolver();
-    // if (checkSolution(greedy, problem)) {
-    //   greedy.printSolution();
-    // } else {
-    //   greedy.printSolution();
-    //   std::cout << "Solution not valid (greedy)\n";
-    // }
-
+    for (int i = 0; i < 5; i++) {
+      auto start = high_resolution_clock::now();
+      Solution greedy = algorithm.GRASPSolver(100,rand(), i);
+      auto stop = high_resolution_clock::now();
+      auto duration = duration_cast<milliseconds>(stop - start);
+      greedy.printSolution();
+      std::cout << "Time: " << duration.count() << " ms\n\n";
+    }
     // std::cout << "\nConstructive:\n";
     // Solution grc = algorithm.GRC(rand());
     // if (checkSolution(grc, problem)) {
@@ -107,15 +117,15 @@ int main(int argc, char* argv[]) {
     //   std::cout << "Solution not valid (g4)\n";
     // }
 
-    std::cout << "GVNS:\n";
-    Solution gvns_solution = algorithm.GVNSSolver(0);
-    if (checkSolution(gvns_solution, problem)) {
-      gvns_solution.printSolution();
-    } else {
-      gvns_solution.printSolution();
-      std::cout << "Solution not valid (gvns)\n";
-      return -1;
-    }
+    // std::cout << "GVNS:\n";
+    // Solution gvns_solution = algorithm.GVNSSolver(0);
+    // if (checkSolution(gvns_solution, problem)) {
+    //   gvns_solution.printSolution();
+    // } else {
+    //   gvns_solution.printSolution();
+    //   std::cout << "Solution not valid (gvns)\n";
+    //   return -1;
+    // }
   } else {
     std::cout << "Error opening file\n";
     return -1;

@@ -21,10 +21,18 @@ class Solution {
     int cost_ = INT_MAX;
   public:
   
-    /** @brief Construct a new Solution:: Solution object */
+    /** 
+     * @brief Construct a new Solution object
+     * @param num_vehicles number of vehicles (number of routes)
+     */
     Solution(int num_vehicles) {
       routes_.resize(num_vehicles);
     }
+
+    /**
+     * @brief Construct a new Solution object
+     * @param routes 
+     */
     Solution(std::vector<Route> routes) {
       routes_ = routes;
       for (int i = 0; i < routes_.size(); i++) {
@@ -76,6 +84,10 @@ class Solution {
       std::cout << "Total cost: " << total_cost << "\n";
     };
 
+    /**
+     * @brief Overload of the operator =
+     * @param solution 
+     */
     void operator=(Solution solution) {
       this->routes_ = solution.getRoutes();
       this->cost_ = solution.calculateCost();

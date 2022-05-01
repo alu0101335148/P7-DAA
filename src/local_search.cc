@@ -26,8 +26,9 @@ void LocalSearch::setProblem(Problem* problem) {
 
 /**
  * @brief Function that chooses the local search algorithm
- * @param initial_solution 
- * @return Solution 
+ * @param initial_solution initial solution
+ * @param local_search type of local search to use 
+ * @return Solution local search solution
  */
 Solution LocalSearch::run(Solution initial_solution, int local_search) {
   switch (local_search) {
@@ -50,6 +51,7 @@ Solution LocalSearch::run(Solution initial_solution, int local_search) {
 
 /**
  * @brief LocalSearch by swap intra-route
+ * @details for each route it applies the swap intra-route algorithm
  * @param initial_solution 
  * @return Solution 
  */
@@ -63,6 +65,8 @@ Solution LocalSearch::swapIntraRoute(Solution initial_solution) {
 
 /**
  * @brief Procesure to swap intra-route
+ * @details Exchange the position of two node in the route, check the cost and
+ * change the route if it is better (repeat until the route is not improved)
  * @param route route to improve
  */
 void LocalSearch::intraRouteSwapProcedure(Route& route) {
@@ -93,7 +97,7 @@ void LocalSearch::intraRouteSwapProcedure(Route& route) {
 }
 
 /**
- * @brief Axiliar function to swap cost
+ * @brief Axiliar function to calculate the cost of the swap
  * @param first_index 
  * @param second_index 
  * @param route 
@@ -129,7 +133,8 @@ int LocalSearch::swapCost(int first_index, int second_index, Route route) {
 
 /**
  * @brief local search by swap inter-route
- * @param initial_solution 
+ * @details for each pair of routes it applies the swap inter-route algorithm
+ * @param initial_solution
  * @return Solution 
  */
 Solution LocalSearch::swapInterRoute(Solution initial_solution) {
@@ -143,13 +148,16 @@ Solution LocalSearch::swapInterRoute(Solution initial_solution) {
 }
 
 /**
- * @brief Auxiliar method to implement the inter route swap procedure
+ * @brief Procesure to swap inter-route
+ * @details try to swap each node of the first route with each node of the
+ * second route, check the cost and change the route if it is better (repeat
+ * until the route is not improved)
  * @param first_route 
  * @param second_route 
  */
 void LocalSearch::interRouteSwapProcedure(Route& first_route, Route& second_route) {
   // Set the best cost to the initial cost
-  std::pair<int, int> best_cost = {first_route.getCost(), second_route.getCost()};
+  Pair best_cost = {first_route.getCost(), second_route.getCost()};
   int first_index = -1;
   int second_index = -1;
 
@@ -158,7 +166,7 @@ void LocalSearch::interRouteSwapProcedure(Route& first_route, Route& second_rout
     improved = false;
     for (int i = 1; i < first_route.getSize() - 1; i++) {
       for (int j = 1; j < second_route.getSize() - 1; j++) {
-        std::pair<int, int> cost_of_swap = swapCost(i, j, first_route, second_route);
+        Pair cost_of_swap = swapCost(i, j, first_route, second_route);
         if ((cost_of_swap.first + cost_of_swap.second) < (best_cost.first + best_cost.second)) {
           best_cost = cost_of_swap;
           first_index = i;
@@ -185,10 +193,10 @@ void LocalSearch::interRouteSwapProcedure(Route& first_route, Route& second_rout
  * @param second_index 
  * @param first_route 
  * @param second_route 
- * @return std::pair<int,int> 
+ * @return Pair
  */
-std::pair<int,int> LocalSearch::swapCost(int first_index, int second_index,
-                                       Route first_route, Route second_route) {
+Pair LocalSearch::swapCost(int first_index, int second_index,
+                           Route first_route, Route second_route) {
   Matrix distance_matrix = problem_->getDistanceMatrix();
   int first_value_previus = first_route[first_index - 1];
   int second_value_previus = second_route[second_index - 1];
@@ -217,6 +225,7 @@ std::pair<int,int> LocalSearch::swapCost(int first_index, int second_index,
 
 /**
  * @brief Implementation of the local search by reinsertion intra-route
+ * @details for each route it applies the reinsertion intra-route algorithm
  * @param initial_solution solution to be improved
  * @return Solution improved solution
  */
@@ -230,6 +239,9 @@ Solution LocalSearch::reinsertionIntraRoute(Solution initial_solution) {
 
 /**
  * @brief Method to implement the intra route reinsertion procedure
+ * @details for each node of the route it tries to insert it in the route
+ * in other position, if it is better than the initial cost, it is inserted
+ * (repeat until the route is not improved)
  * @param route route to be improved
  */
 void LocalSearch::intraRouteReinsertionProcedure(Route& route) {
@@ -291,6 +303,8 @@ int LocalSearch::reinsertionCost(int first_index, int second_index, Route route)
 
 /**
  * @brief Implementation of the local search by reinsertion inter-route
+ * @details for each pair of routes it applies the reinsertion inter-route
+ * algorithm
  * @param initial_solution solution to be improved
  * @return Solution improved solution
  */
@@ -306,13 +320,16 @@ Solution LocalSearch::reinsertionInterRoute(Solution initial_solution) {
 
 /**
  * @brief Implementation of the inter route reinsertion procedure
+ * @details for each node of the first route it tries to delete that node and
+ * insert it in the second route, if it is better than the initial cost, it is
+ * inserted (repeat until the routes are not improved)
  * @param first_route 
  * @param second_route 
  */
 void LocalSearch::interRouteReinsertionProcedure(Route& first_route, Route& second_route) {
   int upper_limit = ((problem_->getNumClients() - 1) / problem_->getNumVehicles());
   upper_limit += (problem_->getNumClients() / 10) + 2;
-  std::pair<int, int> best_cost = {first_route.getCost(), second_route.getCost()};
+  Pair best_cost = {first_route.getCost(), second_route.getCost()};
   int first_index = -1;
   int second_index = -1;
 
@@ -323,7 +340,7 @@ void LocalSearch::interRouteReinsertionProcedure(Route& first_route, Route& seco
     improved = false;
     for (int i = 1; i < first_route.getSize() - 1; i++) {
       for (int j = 0; j < second_route.getSize() - 1; j++) {
-        std::pair<int, int> cost_of_swap = reinsertionCost(i, j, first_route, second_route);
+        Pair cost_of_swap = reinsertionCost(i, j, first_route, second_route);
         if ((cost_of_swap.first + cost_of_swap.second) < (best_cost.first + best_cost.second)) {
           best_cost = cost_of_swap;
           first_index = i;
@@ -348,10 +365,10 @@ void LocalSearch::interRouteReinsertionProcedure(Route& first_route, Route& seco
  * @param second_index 
  * @param first_route 
  * @param second_route 
- * @return std::pair<int,int> cost for each changed routed
+ * @return Pair cost for each changed routed
  */
-std::pair<int,int> LocalSearch::reinsertionCost(int first_index, int second_index,
-                                                Route first_route, Route second_route) {
+Pair LocalSearch::reinsertionCost(int first_index, int second_index,
+                                  Route first_route, Route second_route) {
   Matrix distance_matrix = problem_->getDistanceMatrix();
   int first_value_previus = first_route[first_index - 1];
   int second_value_previus = second_route[second_index - 1];
@@ -378,6 +395,7 @@ std::pair<int,int> LocalSearch::reinsertionCost(int first_index, int second_inde
 
 /**
  * @brief 2-opt local search
+ * @details for each route it applies the 2-opt procedure
  * @param initial_solution solution to be improved
  * @return Solution improved solution
  */
@@ -392,6 +410,10 @@ Solution LocalSearch::twoOpt(Solution initial_solution) {
 
 /**
  * @brief Implementation of the 2-opt procedure
+ * @details for each pair of nodes of the route it tries revert the nodes 
+ * between these two node (the initial two nodes are included in the revertion)
+ * if the cost of the revertion is better than the initial cost, it is reverted
+ * (repeat until the route is not improved)
  * @param route 
  */
 void LocalSearch::twoOptProcedure(Route& route) {
@@ -422,13 +444,12 @@ void LocalSearch::twoOptProcedure(Route& route) {
   } while (improved);
 }
 
-
 /**
  * @brief Auxiliar function to get the 2-opt cost
  * @param first_index 
  * @param second_index 
  * @param route 
- * @return std::pair<int,int> cost for each changed routed
+ * @return Pair cost for each changed routed
  */
 int LocalSearch::twoOptCost(int first_index, int second_index, Route route) {
   Matrix distance_matrix = problem_->getDistanceMatrix();
@@ -444,6 +465,12 @@ int LocalSearch::twoOptCost(int first_index, int second_index, Route route) {
   return route.getCost() + change;
 }
 
+/**
+ * @brief Auxiliar function to rever the nodes in the route
+ * @param first_index 
+ * @param second_index 
+ * @param route 
+ */
 void LocalSearch::Reverse(int first_index, int second_index, Route& route) {
   while (first_index < second_index) {
     route.swap(first_index, second_index);

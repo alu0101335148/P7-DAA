@@ -11,14 +11,12 @@
 
 #include "local_search.h"
 
-typedef std::pair<int, int> Pair;
-
 const int GRASP_ITERATIONS_LIMIT = 100;
 const int GVNS_K_VALUE_LIMIT = 10;
 
 /**
- * @brief Class algorith that implements the GRASP algorithm and the greedy
- * algorithm
+ * @brief Class algorith that implements the GRASP algorithm, the greedy
+ * algorithm and the GVNS algorithm
  */
 class Algorithm {
   public:
@@ -49,7 +47,7 @@ class Algorithm {
     Pair findMinNotVisited(const std::vector<bool>& visited,
                            const int& current);
     Pair findRandomMinNotVisited(std::vector<int> avaibleClients,
-                                 int actualNode, int candidates = 2);
+                                 int actualNode, int candidates = 3);
 
     // Local Search:
     LocalSearch local_search_;

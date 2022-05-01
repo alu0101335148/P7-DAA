@@ -54,6 +54,10 @@ Solution Algorithm::greedySolver(const int initialNode) {
 
 /**
  * @brief Function that implements the GRASP algorithm
+ * @details This function implements the GRASP algorithm. It starts from the
+ * initial solution and search the best solution by applying the local search
+ * algorithm. Then, it repeat this process for a limited number of times, and
+ * return the best solution found.
  * @param max_iterations number of iterations to perform the algorithm
  * @param seed seed to initialize the random number generator
  * @param initial_node initial node to start the route
@@ -78,7 +82,8 @@ Solution Algorithm::GRASPSolver(const int max_iterations, const int seed,
 
 
 /** 
- * @brief Implementation of the GVNS algorithm  
+ * @brief Implementation of the GVNS algorithm
+ * @param initial_node initial node to start the route
  * @return Solution object of the Solution class
  */
 Solution Algorithm::GVNSSolver(const int initial_node) {
@@ -107,6 +112,15 @@ Solution Algorithm::GVNSSolver(const int initial_node) {
 }
 
 
+/**
+ * @brief Mehtod to shake an initial solution
+ * @details This method reinsert randomly the clients of the initial solution.
+ * NOTE: This method limit the size of the routes and the movements, to avoid
+ * repeating movements
+ * @param initial_solution 
+ * @param k_value 
+ * @return Solution 
+ */
 Solution Algorithm::ShakingSolution(Solution initial_solution, 
                                     const int k_value) {
   std::vector<Route> routes = initial_solution.getRoutes();
@@ -174,6 +188,10 @@ Solution Algorithm::ShakingSolution(Solution initial_solution,
 
 /**
  * @brief Implementation of the GVNS procedure
+ * @details This function implements the GVNS procedure. It starts from the
+ * initial solution and search the best solution by applying all the the local
+ * search algorithm until all the local searchs returns the same solution, 
+ * being a local minimun. (repeat until the solution is not improved)
  * NOTE Ther order of local search is the following:
  * 1. Intra-Route-Reinsertion
  * 2. Inter-Route-Reinsertion
@@ -239,7 +257,8 @@ Solution Algorithm::localSearch(Solution initial_solution, int local_search) {
 
 /**
  * @brief This function implements the constructive phase of GRASP algorithm
- * 
+ * @details Variation of the Greedy algorith, it selects a random node of the
+ * best n nodes rather than the best node. 
  * @param seed seed for random number generator
  * @param initialNode initial position to start the route
  * @return Solution Object of the result class

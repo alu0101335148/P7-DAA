@@ -16,6 +16,7 @@
 #include <algorithm>
 
 typedef std::vector<std::vector<int>> Matrix;
+typedef std::pair<int, int> Pair;
 
 /** @brief This class stores the information about the problem */
 class Problem {
