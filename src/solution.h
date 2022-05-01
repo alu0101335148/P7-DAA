@@ -76,7 +76,7 @@ class Solution {
       std::cout << "Total cost: " << total_cost << "\n";
     };
 
-    void operator=(Solution& solution) {
+    void operator=(Solution solution) {
       this->routes_ = solution.getRoutes();
       this->cost_ = solution.calculateCost();
     };

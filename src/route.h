@@ -24,13 +24,9 @@ class Route {
     int cost_ = 0;
 
   public:
-    /**
-     * @brief Constructor of the class
-     */
+    /** @brief Constructor of the class */
     Route() {};
-    /**
-     * @brief Destructor of the class
-     */
+    /** @brief Destructor of the class */
     ~Route() {};
 
     /**

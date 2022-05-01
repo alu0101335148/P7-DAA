@@ -22,7 +22,7 @@ class LocalSearch {
     ~LocalSearch();
 
     void setProblem(Problem* problem);
-    Solution run(Solution initial_solution);
+    Solution run(Solution initial_solution, int local_search = 0);
 
     // Swap intraroute
     Solution swapIntraRoute(Solution initial_solution);
@@ -45,6 +45,12 @@ class LocalSearch {
     void interRouteReinsertionProcedure(Route& first_route, Route& second_route);
     std::pair<int,int> reinsertionCost(int first_index, int second_index, 
                                        Route first_route, Route second_route);
+
+    // 2-Opt
+    Solution twoOpt(Solution initial_solution);
+    void twoOptProcedure(Route& route);
+    int twoOptCost(int first_index, int second_index, Route route);
+    void Reverse(int first_index, int second_index, Route& route);
 };
 
 #endif

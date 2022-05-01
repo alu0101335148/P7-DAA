@@ -13,6 +13,9 @@
 
 typedef std::pair<int, int> Pair;
 
+const int GRASP_ITERATIONS_LIMIT = 100;
+const int GVNS_K_VALUE_LIMIT = 10;
+
 /**
  * @brief Class algorith that implements the GRASP algorithm and the greedy
  * algorithm
@@ -32,7 +35,11 @@ class Algorithm {
     ~Algorithm() {};
 
     Solution greedySolver(const int initialNode = 0);
-    Solution GRASPSolver(const int max_iterations, const int seed, const int initialNode = 0);
+    Solution GRASPSolver(const int max_iterations, const int seed, 
+                         int local_search = 0, const int initialNode = 0);
+    Solution GVNSSolver(const int initialNode = 0);
+    Solution ShakingSolution(Solution initial_solution, const int k_value);
+    Solution GVNSProcedure(Solution initial_solution);
     Solution GRC(int seed, const int initialNode = 0);
 
   private:
@@ -46,7 +53,7 @@ class Algorithm {
 
     // Local Search:
     LocalSearch local_search_;
-    Solution localSearch(Solution initial_solution);
+    Solution localSearch(Solution initial_solution, int local_search = 0);
 };
 
 #endif

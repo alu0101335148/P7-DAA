@@ -47,6 +47,7 @@ Solution Algorithm::greedySolver(const int initialNode) {
     result.getRoutes()[i].getCost() += distance_matrix[result.getRoutes()[i].getLastClient()][initialNode];
     result.getRoutes()[i].addClient(initialNode);
   }
+  result.calculateCost();
   return result;
 }
 
@@ -58,14 +59,14 @@ Solution Algorithm::greedySolver(const int initialNode) {
  * @param initial_node initial node to start the route
  * @return Solution object of the Solution class
  */
-Solution Algorithm::GRASPSolver(const int max_iterations, const int seed,
-                                const int initial_node) {
+Solution Algorithm::GRASPSolver(const int max_iterations, const int seed, 
+                                int local_search, const int initial_node) {
   srand(seed);
   Solution best_solution(problem_->getNumVehicles());
   int iterations = 0;
   while (iterations < max_iterations) {
     Solution initial_solution = GRC(seed, initial_node);
-    Solution sharp_solution = localSearch(initial_solution);
+    Solution sharp_solution = localSearch(initial_solution, local_search);
     if (sharp_solution.calculateCost() < best_solution.getCost()) {
       best_solution = sharp_solution;
     }
@@ -75,13 +76,164 @@ Solution Algorithm::GRASPSolver(const int max_iterations, const int seed,
 }
 
 
+
+/** 
+ * @brief Implementation of the GVNS algorithm  
+ * @return Solution object of the Solution class
+ */
+Solution Algorithm::GVNSSolver(const int initial_node) {
+  Solution initial_solution = GRC(rand());
+  Solution best_solution = initial_solution;
+
+  int counter = 0;
+  while(counter < GRASP_ITERATIONS_LIMIT) {
+    int k_value = 1;
+    while(k_value <= GVNS_K_VALUE_LIMIT) {
+      Solution shaked_solution = ShakingSolution(best_solution, k_value);
+      shaked_solution.calculateCost();
+      Solution sharp_solution = GVNSProcedure(shaked_solution);
+      if (sharp_solution.calculateCost() < best_solution.getCost()) {
+        //std::cout << best_solution.getCost() << " " << sharp_solution.getCost() <<  std::endl; 
+        best_solution = sharp_solution;
+        k_value = 1;
+      } else {
+        k_value++;
+      }
+    }
+    counter++;
+  }
+  best_solution.calculateCost();
+  return best_solution;
+}
+
+
+Solution Algorithm::ShakingSolution(Solution initial_solution, 
+                                    const int k_value) {
+  std::vector<Route> routes = initial_solution.getRoutes();
+  int second_route_size = 0;
+  int upper_limit = 0;
+  std::vector<std::vector<int>> movements = {};
+
+  for (size_t i = 0; i < k_value; i++) {
+    int first_route_index = -1;
+    int second_route_index = -1;
+    bool valid_operation = false;
+    do {
+      first_route_index = rand() % routes.size();
+      second_route_index = rand() % routes.size();
+      second_route_size = routes[second_route_index].getSize();
+
+      // upper limit to the number of clients per route
+      upper_limit = ((problem_->getNumClients() - 1) / problem_->getNumVehicles());
+      upper_limit += (problem_->getNumClients() / 10) + 2;
+
+      if (first_route_index == second_route_index || 
+          routes[first_route_index].getSize() <= 4 ||
+          second_route_size > upper_limit) {
+        continue;
+      }
+      valid_operation = true;
+    } while (!valid_operation);
+    int convertion = 0;
+
+    convertion = (routes[first_route_index].getSize() - 2);
+    int new_first_route_index = rand() % convertion + 1;
+    
+    convertion = (routes[second_route_index].getSize() - 1);
+    int new_second_route_index = rand() % convertion;
+
+    std::vector<int> actual_movement = {
+      first_route_index, 
+      new_first_route_index, 
+      second_route_index, 
+      new_second_route_index
+    };
+
+    if (std::find(movements.begin(), movements.end(), actual_movement) != movements.end()) {
+      i--;
+      continue;
+    } else {
+      movements.push_back(actual_movement);
+    }
+
+    Pair cost_of_relocation = local_search_.reinsertionCost(
+      new_first_route_index,
+      new_second_route_index,
+      routes[first_route_index],
+      routes[second_route_index]
+    );
+
+    int client = routes[first_route_index].remove(new_first_route_index);
+    routes[second_route_index].insert(new_second_route_index, client);
+    routes[first_route_index].getCost() = cost_of_relocation.first;
+    routes[second_route_index].getCost() = cost_of_relocation.second;
+  }
+  return Solution(routes);
+}
+
+
+/**
+ * @brief Implementation of the GVNS procedure
+ * NOTE Ther order of local search is the following:
+ * 1. Intra-Route-Reinsertion
+ * 2. Inter-Route-Reinsertion
+ * 3. Intra-Route-Swap
+ * 4. Inter-Route-Swap
+ * 5. 2-opt
+ * @return Solution object of the Solution class
+ */
+Solution Algorithm::GVNSProcedure(Solution initial_solution) {
+  int local_searchs_finished = 0;
+  Solution actual_solution = initial_solution;
+  Solution next_solution = initial_solution;
+  Solution best_solution = initial_solution;
+  bool improved = false;
+  do {
+    improved = false;
+    local_searchs_finished = 0;
+    do {
+      switch (local_searchs_finished) {
+        case 0:
+          next_solution = local_search_.reinsertionIntraRoute(actual_solution);
+          break;
+        case 1:
+          next_solution = local_search_.reinsertionInterRoute(actual_solution);
+          break;
+        case 2:
+          next_solution = local_search_.swapIntraRoute(actual_solution);
+          break;
+        case 3:
+          next_solution = local_search_.swapInterRoute(actual_solution);
+          break;
+        case 4:
+          next_solution = local_search_.twoOpt(actual_solution);
+          break;
+        default:
+          break;
+      }
+      if (next_solution.getCost() < actual_solution.getCost()) {
+        actual_solution = next_solution;
+        local_searchs_finished = 0;
+      } else {
+        local_searchs_finished++;
+      }
+    } while (local_searchs_finished < 4);
+    if (actual_solution.getCost() < best_solution.getCost()) {
+      best_solution = actual_solution;
+      improved = true;
+    }
+  } while (improved);
+  return best_solution;
+}
+
+
 /**
  * @brief Local search function to improve the solution
  * @param initial_solution initial solution to improve
  * @return Solution object of the Solution class
  */
-Solution Algorithm::localSearch(Solution initial_solution) {
-  return local_search_.run(initial_solution);
+Solution Algorithm::localSearch(Solution initial_solution, int local_search) {
+  return local_search_.run(initial_solution, local_search);
 }
 
 
@@ -134,6 +286,7 @@ Solution Algorithm::GRC(int seed, const int initialNode) {
     result.getRoutes()[i].getCost() += distance_matrix[result.getRoutes()[i].getLastClient()][initialNode];
     result.getRoutes()[i].addClient(initialNode);
   }
+  result.calculateCost();
   return result;
 }
 
